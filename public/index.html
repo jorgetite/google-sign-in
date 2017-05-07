@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Sign In POC</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-signin-client_id" content="766208873574-rfoodaboebbs23o85s5pfrn2hvsq7kvu.apps.googleusercontent.com">
+
+    <link rel="stylesheet" href="lib/kube/css/kube.css">
+    <link rel="stylesheet" href="assets/css/signin.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="lib/kube/js/kube.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+</head>
+<body>
+    <div id="main">
+        <div id="hero">
+            <h1>Google Sign In</h1>
+            <p>
+                An example using Google Sign-In to authenticate users
+                with a PHP backend server and safely identity the currently
+                signed-in user. After a user successfully signs in, the
+                user's ID token is sent to your server. Then, on the server,
+                the integrity of the ID token is verified and the user's ID is
+                retrieved from the sub claim of the ID token.
+            </p>
+        </div>
+
+        <div class="content">
+            <div id="sign-in">
+                <p>The following is an example of the default Google Sign-In button:</p>
+                <div class="row align-center">
+                    <div class="col col-2">
+                        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sign-out">
+                <p>
+                    Users can sign out of the app without signing out of Google
+                    using a sign-out button and attach a function that calls the
+                    <code>GoogleAuth.signOut()</code> method.
+                </p>
+                <p>
+                    User ID: <var id="user-id"></var>
+                </p>
+                <div class="row align-center">
+                    <div class="col col-2">
+                        <button id="sign-out-btn" class="button secondary outline">Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function onSignIn(gUser) {
+            var id_token = gUser.getAuthResponse().id_token;
+
+            $.ajax({
+                url: "./signin.php",
+                method: "POST",
+                data: {
+                    id_token: id_token
+                },
+                success: function(result) {
+                    console.log(result);
+                    $('#user-id').text(result);
+                    $('#sign-out').fadeIn();
+                    $('#sign-in').hide();
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $("#sign-out-btn").click(function() {
+                var auth2 = gapi.auth2.getAuthInstance();
+                auth2.signOut().then(function () {
+                    $('#sign-in').fadeIn();
+                    $("#sign-out").hide();
+                });
+            })
+        });
+    </script>
+</body>
+</html>
